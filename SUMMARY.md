@@ -1,4 +1,5 @@
 # Table of contents
 
 * [Test Page](README.md)
+* [Chapter01 什么是JavaScript](chapter01-shen-me-shi-javascript.md)
 
