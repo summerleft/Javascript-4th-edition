@@ -43,3 +43,23 @@
 
 不管包含什么代码，只要没有使用defer和asyns属性，浏览器都会按照&lt;script&gt;在页面中出现的顺序依次解释
 
+### 2.1.1 标签位置
+
+现代Web应用程序通常将所有JavaScript引用放在&lt;body&gt;元素中的页面内容后面
+
+```javascript
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Example HTML Page</title>
+  </head>
+  <body>
+  <!-- 这里是页面内容 -->
+  <script src="example1.js"></script>
+  <script src="example2.js"></script>
+  </body>
+</html>
+```
+
+
+
