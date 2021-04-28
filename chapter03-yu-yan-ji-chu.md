@@ -160,3 +160,193 @@ let age;
 let age; // SyntaxError: 标识符age已经声明过了
 ```
 
+嵌套使用相同的标识符不会报错，因为同一个块中没有重复声明
+
+```javascript
+var name = 'Nicholas';
+console.log(name); // 'Nicholas'
+if (true) {
+  var name = 'Matt';
+  console.log(name); // 'Matt'
+}
+
+let age = 30;
+console.log(age); // 30
+if (true) {
+  let age = 26;
+  console.log(age);  // 26
+}
+```
+
+对声明冗余报错不会因混用let和var受影响
+
+```javascript
+var name;
+let name; // SyntaxError
+
+let age;
+var age; // SyntaxError
+```
+
+#### 3.3.2.1 暂时性死区
+
+let声明的变量不会在作用域中被提升
+
+```javascript
+console.log(name); // undefined
+var name = 'Matt';
+
+console.log(age); // ReferenceError: age没有定义
+let age = 26;
+```
+
+在let声明之前的执行瞬间被称为“暂时性死区“，在此阶段引用任何后面才声明的变量都会抛出ReferenceError
+
+#### 3.3.2.2 全局声明
+
+使用let在全局作用域中声明的变量不会成为window对象的属性（var声明会）
+
+```javascript
+var name = 'Matt';
+console.log(window.name); // 'Matt'
+
+let age = 26;
+console.log(window.age); // undefined
+```
+
+#### 3.3.2.3 条件声明
+
+let声明的关键字不能依赖条件声明模式，因为它的作用域仅限于该块
+
+#### 3.3.2.4 for循环中的let声明
+
+for循环中定义的迭代变量会渗透到循环体外部
+
+```javascript
+for (var i = 0; i < 5; i++) {
+  // 循环逻辑
+}
+console.log(i); // 5
+```
+
+改用let后问题就消失
+
+使用var最常见的问题是对迭代变量的奇特声明和修改
+
+```javascript
+for (var i = 0; i < 5; i++) {
+  setTimeout(() => console.log(i), 0)
+}
+// 实际会输出5、5、5、5、5
+```
+
+### 3.3.3 const声明
+
+const与let基本相同，但是它声明变量时必须同时初始化变量，且修改const声明的变量会报错
+
+```javascript
+const age = 26;
+age = 36; // TypeError: 给常量赋值
+
+// const不允许重复声明
+const name = 'Matt';
+const name = 'Nicholas'; // SyntaxError
+
+// const声明的作用域是块
+const name = 'Matt';
+if (true) {
+  const name = 'Nicholas';
+}
+console.log(name); // Matt
+```
+
+const声明的限制只适用于它指向的变量的引用，即如果const变量引用的是一个对象，修改这个对象内部的属性并不违反const的限制
+
+不可以用const声明迭代变量，但是可以声明一个不会修改的for循环变量
+
+```javascript
+for (const i = 0; i < 10; ++i) () // TypeError: 给常量赋值
+
+let i = 0;
+for (const j = 7; i < 5; ++i) {
+  console.log(j);
+}
+// 7,7,7,7
+
+for (const key in {a: 1, b: 2}) {
+  console.log(key);
+}
+// a, b
+
+for (const value of [1, 2, 3, 4, 5]) {
+  console.log(value);
+}
+// 1, 2, 3, 4, 5
+```
+
+### 3.3.4 声明风格及最佳实践
+
+* 不使用var
+* const优先，let次之
+
+## 3.4 数据类型
+
+ECMAScript有6种简单数据类型（也称为原始类型）：Undefined, Null, Boolean, Number, String, Symbol, 1种复杂数据类型Object
+
+### 3.4.1 typeof操作符
+
+对一个值使用typeof操作符会返回下列字符串之一：
+
+* "undefined" 未定义
+* "boolean" 布尔值
+* "string" 字符串
+* "number" 数值
+* "object" 对象（而不是函数）或null
+* "function" 函数
+* "symbol" 符号
+
+> 严格来讲，函数在ECMAScript中被认为是对象，但是它又有自己特殊的属性，所以有必要通过typeof区分函数和其他对象
+
+### 3.4.2 Undefined类型
+
+此类型只有一个值，就是特殊值undefined，使用var或let声明了变量但未初始化时，就相当于赋予了该值
+
+```javascript
+let message;
+console.log(message == undefined); // true
+```
+
+包含undefined值的变量和未定义变量是有区别的
+
+```javascript
+let message; 
+// let age
+
+console.log(message); // "undefined"
+console.log(age); // 报错
+```
+
+然而对未声明的变量调用typeof依然会返回“undefined“
+
+undefined是一个假值
+
+```javascript
+let message;
+
+if (message) {
+  // 这个块不会执行
+}
+
+if (!message) {
+  // 这个块会执行
+}
+
+if (age) {
+  // 这个块会报错
+}
+```
+
+### 3.4.3 Null类型
+
+
+
