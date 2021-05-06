@@ -348,5 +348,226 @@ if (age) {
 
 ### 3.4.3 Null类型
 
+Null类型只有一个值null，null值表示一个空指针
+
+```javascript
+let car = null;
+console.log(typeof car); // "object"
+```
+
+在定义将来要保存对象值的变量时，建议使用null来初始化
+
+undefined值由null值派生而来，因此ECMA-262将他们定义为表面相等
+
+```javascript
+console.log(null == undefined); // true
+```
+
+### 3.4.4  Boolean类型
+
+有两个字面值：true和false
+
+不同类型与布尔值之间的转换规则：
+
+| 数据类型 | 转换为true的值 | 转换为false的值 |
+| :--- | :--- | :--- |
+| Boolean | true | false |
+| String | 非空字符串 | 空字符串 |
+| Number | 非零数值（包括无穷值） | 0、NaN |
+| Object | 任意对象 | null |
+| Undefined | 不存在 | undefined |
+
+if等流控制语句会自动执行其他类型值到布尔值的转换
+
+### 3.4.5 Number类型
+
+```javascript
+let intNum = 55; // 十进制整数
+let octalNum1 = 070; // 八进制56
+let hexNum = 0xA; // 十六进制10
+```
+
+十六进制中的字母大小写均可
+
+#### 3.4.5.1 浮点值
+
+数值中必须包含小数点，小数点后必须至少有一个数字，小数点前面不必须有整数但推荐加上
+
+在小数点后面没有数字的情况下，数值会自动变成整数，即使跟着0，也会被转换为整数
+
+科学计数法
+
+```javascript
+let floatNum = 3.125e7;
+```
+
+浮点值精确度最高可达17位小数，但不如整数精确，0.1+0.2会得到0.300 000 000 000 000 04，因此永远不要测试某个特定的浮点值
+
+#### 3.4.5.2 值的范围
+
+ECMAScript可以表示的最小值和最大值分别保存在Number.MIN\_VALUE中和Number.MAX\_VALUE中
+
+若计算得到的结果超出了可以表示的范围，数值会被自动转换为Infinity或-Infinity，且不可用于任何计算
+
+确定一个值是不是有限大，可使用isFinite\(\)函数
+
+```javascript
+let result = Number.MAX_VALUE + Number.MAX_VALUE;
+console.log(isFinite(result)); // false;
+```
+
+> Number.NEGATIVE\_INFINITY和Number.POSITIVE\_INFINITY可以获取正、负Infinity
+
+#### 3.4.5.3 NaN
+
+用于表示本来要返回数值的操作失败了（而不是抛出错误）
+
+```javascript
+console.log(0/0); // NaN
+console.log(-0/+0); // NaN
+console.log(5/0); // Infinity
+console.log(5/-0); // -Infinity任何
+```
+
+任何涉及NaN的操作始终返回NaN，NaN不等于包括NaN在内的任何值
+
+isNaN\(\)函数
+
+```javascript
+console.log(isNaN(NaN)); // true
+console.log(isNaN(10); // false
+console.log(isNaN("10")); // false，可以转换为数值10
+console.log(isNaN("blue")); // true，不可以转换为数值
+console.log(isNaN(true); // false，可以转换为数值1
+```
+
+> isNaN\(\)可以用于测试对象。它首先会调用对象的valueOf\(\)方法，然后确定返回值是否可以转化为数值，如果不能，再调用toString\(\)方法
+
+#### 3.4.5.4 数值转换
+
+Number\(\)、parseInt\(\)、parseFloat\(\)可将非数值转换为数值，Number\(\)可用于任何数据类型，后两个用于将字符串转换为数值
+
+Number\(\)转换规则
+
+* true-&gt;1，false-&gt;0
+* 数值，直接返回
+* null-&gt;0
+* undefined-&gt;NaN
+* 字符串
+  * 包含数值字符，转换为十进制数值
+  * 包含有效的浮点值格式，转换为相应浮点值
+  * 包含有效的十六进制格式"0xf"，转换为对应的十进制整数值
+  * 空字符串，返回0
+  * 包含除上述情况之外的其他字符，返回NaN
+* 对象，调用valueOf\(\)，若结果是NaN，调用toString\(\)再转换
+
+```javascript
+let num1 = Number("Hello world!"); // NaN
+let num2 = Number(""); // 0
+let num3 = Number("000011"); // 11
+let num4 = Number(true); // 1
+```
+
+parseInt\(\)会忽略字符串最前面的空格，若第一个字符不是数值字符或加减号，立即返回NaN，空字符也会返回NaN。如果字符串以"0x"开头，会被解释为十六进制整数，以”0“开头且紧跟数值字符，在非严格模式下会被某些实现解释为八进制整数
+
+```javascript
+let num1 = parseInt("1234blue"); // 1234
+let num2 = parseInt(""); // NaN
+let num3 = parseInt("0xA"); // 10
+let num4 = parseInt("22.5"); // 22
+let num5 = parseInt("70"); // 70
+let num6 = parseInt("0xf"); // 15
+```
+
+parseInt\(\)接收第二个参数，用于指定进制数
+
+```javascript
+let num = parseInt("0xAF", 16); // 175
+let num1 = parseInt("AF", 16); // 175
+let num2 = parseInt("AF"); // NaN
+```
+
+parseFloat\(\)函数类似，第一次出现的小数点有效，但第二次出现的小数点就无效，剩余字符会被忽略，且始终忽略字符串开头的0，不能指定进制数。若字符串表示整数（没有小数点或小数点后只有一个0），则返回整数
+
+```javascript
+let num1 = parseFloat("1234blue"); // 1234
+let num2 = parseFloat("0xA"); // 0
+let num3 = parseFloat("22.5"); // 22.5
+let num4 = parseFloat("22.34.5"); // 22.34
+let num5 = parseFloat("0908.5"); // 908.5
+let num6 = parseFloat("3.125e7"); // 3125000
+```
+
+### 3.4.6 String类型
+
+字符串可以使用双引号\("\)、单引号\('\)或反引号\(\`\)表示，但是不可混用
+
+#### 3.4.6.1 字符字面量
+
+| 字面量 | 含义 |
+| :--- | :--- |
+| \n | 换行 |
+| \t | 制表 |
+| \b | 退格 |
+| \r | 回车 |
+| \f | 换页 |
+| \\ | 反斜杠 |
+| \' | 单引号 |
+| \" | 双引号 |
+| \\` | 反引号 |
+| \xnn | 以十六进制编码nn表示的字符，如\x41等于"A" |
+| \unnnn | 以十六进制编码nnnn表示的Unicode字符 |
+
+转义序列表示一个字符
+
+> 若字符串中包含双字节字符，那么length属性返回的值可能不是准确的字符数
+
+#### 3.4.6.2 字符串的特点
+
+ECMAScript中字符串不可变，即一旦创建，值就不能变。要修改某个变量中的字符串，必须先销毁原始字符串
+
+#### 3.4.6.3 转换为字符串
+
+toString\(\)方法可见于数值、布尔值、对象和字符串，null和undefined没有toString\(\)方法
+
+大多情况下toString\(\)不接受参数，但对数值调用时，可接收底数参数
+
+```javascript
+let num = 10;
+console.log(num.toString()); // "10"
+console.log(num.toString(2)); // "1010"
+console.log(num.toString(8)); // "12"
+console.log(num.toString(10)); // "10"
+console.log(num.toString(16)); // "a"
+```
+
+> 用加号操作符给一个值加上空字符串也可以将其转换为字符串
+
+#### 3.4.6.4 模板字面量
+
+反引号内部的空格会被保留，在使用时要格外注意，格式正确的模板字符串看起来可能会缩进不当
+
+```javascript
+// 这个模板字面量在换行符之后有25个空格符
+let myTemplateLiteral = `first line
+                         second line`;
+console.log(myTemplateLiteral.length); // 47
+
+// 这个模板字面量以一个换行符开头
+let secontTemplateLiteral = `
+first line
+second line`;
+console.log(secondTemplateLiteral[0] === '\n'); // true
+
+//这个模板字面量没有意料之外的字符
+let thirdTemplateLiteral = `first line
+second lone`;
+console.log(thirdTemplateLiteral);
+// first line
+// second line
+```
+
+#### 3.4.6.5 字符串插值
+
 
 
