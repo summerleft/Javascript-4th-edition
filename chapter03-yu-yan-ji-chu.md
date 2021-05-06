@@ -569,5 +569,22 @@ console.log(thirdTemplateLiteral);
 
 #### 3.4.6.5 字符串插值
 
+字符串插值通过在${ }中使用一个JavaScript表达式实现
 
+```javascript
+let value = 5;
+let exponent = 'second';
+// 以前，字符串插值是这样实现的
+let interpolatedString = 
+  value + ' to the ' + exponent + ' power is ' + (value * value);
+  
+// 现在，可以用模板字面量这样实现
+let interpolatedTemplateLiteral = 
+  `${ value } to the ${ exponent } power is ${ value * value }`;
+  
+console.log(interpolatedString); // 5 to the second power is 25
+console.log(interpolatedTemplateLiteral); // 5 to the second power is 25
+```
+
+所有插入的值都会使用toString\(\)强制转型为字符串，任何JavaScript表达式都可以用于插值，嵌套的模板字符串无须转义
 
