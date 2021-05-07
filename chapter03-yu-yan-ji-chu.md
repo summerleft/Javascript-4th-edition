@@ -588,3 +588,426 @@ console.log(interpolatedTemplateLiteral); // 5 to the second power is 25
 
 所有插入的值都会使用toString\(\)强制转型为字符串，任何JavaScript表达式都可以用于插值，嵌套的模板字符串无须转义
 
+#### 3.4.6.6 模板字面量标签函数
+
+#### 3.4.6.7 原始字符串字面量
+
+使用模板字面量可以直接获取原始的模板字面量内容（如换行符或Unicode字符）,可以使用默认的String的raw标签函数
+
+```javascript
+// Unicode示例
+// \u00A9是版权符号
+console.log(`\u00A9`);
+console.log(String.raw`\u00A9`); // \u00A9
+
+// 换行符示例
+console.log(`first line\nsecond lind`);
+// first line
+// second line
+
+console.log(String.raw`first line\nsecond line`); // "first line\nsecond line"
+
+// 对实际的换行符来说是不行的
+// 它们不会被转换为转义序列的形式
+console.log(`first line
+second line`);
+// first line
+// second line
+
+console.log(String.raw`first line
+second line`);
+// first line
+// second line
+```
+
+也可以通过标签函数的第一个参数，即字符串数组的raw属性取得每个字符串的原始内容
+
+```javascript
+function printRaw(strings) {
+  console.log('Actual characters:');
+  for (const string of strings) {
+    console.log(string);
+  }
+  
+  console.log('Escaped characters;');
+  for (const rawString of strings.raw) {
+    console.log(rawString);
+  }
+}
+
+printRaw`\u00A9${ 'and' } \n`;
+// Actual characters:
+// ©️
+// （换行符）
+// Escaped characters:
+// \u00A9
+// \n
+```
+
+### 3.4.7 Symbol类型
+
+ECMAScript6新增，符号是原始值，符号实例唯一、不可变。符号的用途是确保对象属性使用唯一标识符
+
+#### 3.4.7.1 符号的基本用法
+
+符号需要使用Symbol\(\)函数初始化。调用该函数时，可以传入字符串作为对符号的描述，可以通过这个字符串调试代码。但是这个字符串参数与符号定义或标识完全无关
+
+```javascript
+let genericSymbol = Symbol();
+let otherGenericSymbol = Symbol();
+
+let fooSymbol = Symbol('foo');
+let otherFooSymbol = Symbol('foo');
+
+console.log(genericSymbol == otherGenericSymbol); // false
+consolt.log(fooSymbol == otherFooSymbol); // false
+```
+
+只要创建Symbol\(\)实例并将其用作对象的心属性，就可以保证它不会覆盖已有的对象属性，无论是符号属性还是字符串属性
+
+```javascript
+let genericSymbol = Symbol();
+console.log(genericSymbol); // Symbol()
+
+let fooSymbol = Symbol('foo');
+console.log(fooSymbol); // Symbol(foo)
+```
+
+Symbol\(\)函数不能与new关键字一起作为构造函数使用，可以避免创建符号包装对象
+
+```javascript
+let mySymbol = new Symbol(); // TypeError: Symbol is not a constructor
+```
+
+如果确实需要使用符号包装对象，可以借用Object\(\)函数
+
+```javascript
+let mySymbol = Symbol();
+let myWrappedSymbol = Object(mySymbol);
+console.log(typeof myWrappedSymbol); // "object"
+```
+
+#### 3.4.7.2 使用全局符号注册表
+
+如果运行时不同部分需要共享和重用符号实例，可以用一个字符串作为键，在全局符号注册表中创建并重用符号
+
+```javascript
+let fooGlobalSymbol = Symbol.for('foo');
+console.log(typeof fooGlobalSymbol); // symbol
+```
+
+Symbol.for\(\)对每个字符串键都执行幂等操作。第一次使用某个字符串调用时，它会检查全局运行时的注册表，发现不存在对应的符号，于是就会生成一个新符号实例并添加到注册表中。后续使用相同字符串的调用同样会检查注册表，发现存在与该字符串对应的符号，然后就会返回该符号实例
+
+```javascript
+let fooGlobalSymbol = Symbol.for('foo'); // 创建新符号
+let otherFooGlobalSymbol = Symbol.for('foo'); // 重用已有符号
+
+console.log(fooGlobalSymbol === otherFooGlobalSymbol); // true
+```
+
+即使采用相同的符号描述，在全局注册表中定义的符号跟使用Symbol\(\)定义的符号也不相等
+
+```javascript
+let localSymbol = Symbol('foo');
+let globalSymbol = Symbol.for('foo');
+
+console.log(localSymbol === globalSymbol); // false
+```
+
+全局注册表中的符号必须使用字符串键来创建，因此作为参数传给Symbol.for\(\)的任何值都会被转换为字符串，且注册表中使用的键同时也会被用作符号描述
+
+```javascript
+let emptyGlobalSymbol = Symbol.for();
+console.log(emptyGlobalSymbol); // Symbol(undefined)
+```
+
+可使用Symbol.keyFor\(\)查询全局注册表，该方法接收符号，返回该全局符号对应的字符串键，若查询的不是全局符号则返回undefined
+
+```javascript
+// 创建全局符号
+let s = Symbol.for('foo');
+console.log(Symbol.keyFor(s)); // foo
+
+// 创建普通符号
+let s2 = Symbol('bar');
+console.log(Symbol.keyFor(s2)); // undefined
+```
+
+若传给Symbol.keyFor\(\)的不是符号，则抛出TypeError
+
+#### 3.4.7.3 使用符号作为属性
+
+可以使用字符串或数值作为属性的地方都可以使用符号，包括对象字面量属性和Object.defineProperty\(\)/Object.defineProperties\(\)定义的属性。对象字面量只能在计算属性语法中使用符号作为属性
+
+### 3.4.8 Object类型
+
+通过创建Object类型的实例创建自己的对象，再给对象添加属性和方法
+
+```javascript
+let o = new Object();
+```
+
+每个Object实例都有如下属性和方法
+
+* constructor: 用于创建当前对象的函数
+* hasOwnProperty\(propertyName\): 用于判断当前对象实例（不是原型）上是否存在给定的属性。要检查的属性名必须是字符串或符号
+* isPrototypeOf\(object\): 用于判断当前对象是否为另一个对象的原型
+* propertyIsEnumerable\(propertyName\): 用于判定给定的属性是否可以使用for-in语句枚举，属性名必须是字符串
+* toLocaleString\(\): 返回对象的字符串表示，反映对象所在的本地化执行环境
+* toString\(\): 返回对象的字符串表示
+* valueOf\(\): 返回对象对应的字符串、数值或布尔值表示，通常与toString\(\)的返回值相同
+
+## 3.5 操作符
+
+包括数学操作符、位操作符、关系操作符和相等操作符等。在应用给对象时，操作符通常会调用valueOf\(\)和/或toString\(\)方法
+
+### 3.5.1 一元操作符
+
+#### 3.5.1.1 递增/递减操作符
+
+前缀版和后缀版同C语言
+
+递增和递减操作符遵循以下规则：
+
+* 对于字符串，如果是有效的数值形式，则先转换为数值再应用改变
+* 对于字符串，不是有效的数值形式，则设置为NaN
+* 对于布尔值，false-&gt;0，true -&gt; 1
+* 对于浮点值，正常执行
+* 对于对象，则调用valueOf\(\)去的可操作的值，再应用上述规则。如果是NaN，则调用toString\(\)并再次应用规则
+
+```javascript
+let s1 = "2";
+let s2 = "z";
+let b = false;
+let f = 1.1;
+let o = {
+  valueOf() {
+    return -1'
+  }
+};
+
+s1++ // 3
+s2++; // NaN
+b++; // 1
+f-- ; // 0.10000000000000009
+o--; // -2
+```
+
+#### 3.5.1.2 一元加和减
+
+一元加（减）应用到非数值时，会执行与使用Number\(\)转型函数一样的类型转换
+
+```javascript
+let s1 = "01";
+let s2 = "1.1";
+let s3 = "z";
+let b = false;
+let f = 1.1;
+let o = {
+  valueOf() {
+    return -1;
+  }
+};
+
+s1 = +s1; // 1
+s2 = +s2; // 1.1
+s3 = +s3; // NaN
+b = +b; // 0
+f = +f; // 1.1
+o = +o // -1
+```
+
+```javascript
+let s1 = "01";
+let s2 = "1.1";
+let s3 = "z";
+let b = false;
+let f = 1.1;
+let o = {
+  valueOf() {
+    return -1;
+  }
+};
+
+s1 = -s1; // -1
+s2 = -s2; // -1.1
+s3 = -s3; // NaN
+b = -b; // 0
+f = -f; // -1.1
+o = -o; // 1
+```
+
+### 3.5.2 位操作符
+
+有符号整数使用32位的前31位表示整数值，第32位表示数值的符号
+
+如果将位操作应用到非数值，首先会使用Number\(\)函数将值转换为数值，再应用操作
+
+#### 3.5.2.1 按位非
+
+```javascript
+let num1 = 25;    // 二进制00000000000000000000000000011001
+let num2 = ~num1; // 二进制11111111111111111111111111100110
+console.log(num2);
+```
+
+#### 3.5.2.2 按位与
+
+```javascript
+let result = 25 & 3;
+console.log(result); // 1
+```
+
+#### 3.5.2.3 按位或
+
+```javascript
+let result = 25 | 3;
+console.log(result); // 27
+```
+
+#### 3.5.2.4 按位异或
+
+```javascript
+let result = 25 ^ 3;
+console.log(result); // 26
+```
+
+#### 3.5.2.5 左移
+
+```javascript
+let oldValue = 2; // 二进制10
+let newValue = oldValue << 5; // 二进制1000000
+```
+
+左移会保留它所操作数值的符号
+
+#### 3.5.2.6 有符号右移
+
+实际上是左移的逆运算
+
+```javascript
+let oldValue = 64;
+let newValue = oldValue >> 5; 
+```
+
+右移后空位会出现在左侧，且在符号位之后，ECMAScript会用符号位的值来填充这些空位
+
+#### 3.5.2.7 无符号右移
+
+对正数来说，和有符号右移相同，但对负数来说，无符号右移会给空位补0
+
+```javascript
+let oldValue = -64;
+let newValue = oldValue >>> 5; // 134217726
+```
+
+### 3.5.3 布尔操作符
+
+一共有3个：逻辑非，逻辑与和逻辑或
+
+#### 3.5.3.1 逻辑非
+
+这个操作符始终返回布尔值，该操作符首先将操作数转换为布尔值，然后再取反，规则如下：
+
+* 对象，返回false
+* 空字符串，返回true
+* 非空字符串，返回false
+* 数值0，返回true
+* 非0数值，返回false
+* null，返回true
+* NaN，undefined，返回true
+
+同时使用两个叹号可以用于把任意值转换为布尔值
+
+#### 3.5.3.2 逻辑与
+
+逻辑与操作符可用于任何类型的操作数，如果有操作数不是布尔值，则逻辑与并不一定会返回布尔值，规则如下：
+
+* 第一个操作数是对象，返回第二个操作数
+* 第二个操作数是对象，只有第一个操作数求值为true才会返回该对象
+* 两个操作数都是对象，返回第二个操作数
+* 有一个操作数是null，返回null
+* 有一个操作数是NaN，返回NaN
+* 有一个操作数是undefined，返回undefined
+
+逻辑与操作符是短路操作符，如果第一个操作数决定了结果，那么永远不会对第二个操作数求值
+
+#### 3.5.3.3 逻辑或
+
+规则如下
+
+* 第一个操作数是对象，发挥第一个操作数
+* 第一个操作数求值为false，返回第二个操作数
+* 两个操作数都是对象，返回第一个操作数
+* 两个操作数都是null/NaN/undefined，返回null/NaN/undefined
+
+对逻辑或而言，第一个操作数求值为true，第二个操作数就不会再被求值
+
+### 3.5.4 乘性操作符
+
+3个乘性操作符：乘法、除法和取模。处理非数值时，会包含自动的类型转换。如果乘性操作符有不是数值的操作数，则会先使用Number\(\)转型函数转换为数值
+
+#### 3.5.4.1 乘法操作符
+
+特殊规则如下：
+
+* 操作数都是数值，执行常规乘法运算，若不能表示乘积，返回Infinity或-Infinity
+* 任一操作数是NaN，返回NaN
+* Infinity \* 0 = NaN
+* Infinity \* 非0有限数值，返回Infinity或-Infinity
+* Infinity \* Infinity = Infinity
+* 有不是数值的操作数，先在后台用Number\(\)转换为数值再应用上述规则
+
+#### 3.5.4.2 除法操作符
+
+特殊规则如下：
+
+* 操作数都是数值，同乘法操作符
+* 任意操作数是NaN，返回NaN
+* Infinity / Infinity = NaN
+* 0 / 0 = NaN
+* 非0有限值 / 0 = Infinity或-Infinity
+* Infinity / 任何数值，返回Infinity或-Infinity
+* 有不是数值的操作数，先在后台用Number\(\)转换为数值再应用上述规则
+
+### 3.5.5 指数操作符
+
+```javascript
+console.log(Math.pow(3, 2); // 9
+console.log(3 ** 2); // 9
+
+console.log(Math.pow(16, 0.5); // 4
+console.log(16 ** 0.5); // 4
+
+let squared = 3;
+squard **= 2;
+console.log(squared); // 9
+
+let sqrt = 16;
+sqrt **= 0.5;
+console.log(sqrt); // 4
+```
+
+### 3.5.6 加性操作符
+
+#### 3.5.6.1 加法操作符
+
+规则如下：
+
+* 任一操作数是NaN，返回NaN
+* Infinity + Infinity = Infinity
+* -Infinity + -Infinity = -Infinity
+* Infinity + -Infinity = NaN
+* +0 + +0 = +0
+* -0 + =0 = +0
+* -0 + -0 = -0
+
+如果有一个操作数是字符串，应用如下规则：
+
+* 两个操作数都是字符串，第二个字符串拼接到第一个字符串后面
+* 只有一个操作数是字符串，将另一个操作数转换为字符串，再将两个字符串拼接
+
+
+
+
+
