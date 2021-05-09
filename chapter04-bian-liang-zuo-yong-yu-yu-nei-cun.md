@@ -217,5 +217,35 @@ console.log(sum); // 30
 
 > 未经声明而初始化变量是JavaScript编程中一个非常常见的错误，会导致很多问题。为此，读者在初始化变量之前一定要先声明变量。在严格模式下，未经声明就初始化变量会报错
 
+var声明会被拿到函数或全局作用域的顶部，位于作用域中所有代码之前，这种现象叫做“提升“。通过在声明之前打印变量，可以验证变量会被提升
 
+```javascript
+console.log(name); // undefined
+var name = 'Jake';
+
+functiuon() {
+  console.log(name); // undefined
+  var name = 'Jake';
+}
+```
+
+#### 4.2.2.2 使用let的块级作用域声明
+
+let的作用域是块级的，块级作用域由最近的一对包含花括号界定
+
+let在同一作用域内不能声明两次，而重复的var声明会被忽略
+
+```javascript
+var a;
+var a;
+// 不会报错
+
+{
+  let b;
+  let b;
+}
+// SyntaxError: 标识符b已经声明过了
+```
+
+let非常适合在循环中声明迭代变量，使用var声明的迭代变量会泄漏到循环外部
 
