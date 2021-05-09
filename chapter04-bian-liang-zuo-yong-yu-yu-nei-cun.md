@@ -56,5 +56,166 @@ console.log(obj2.name); // "Nicholas"
 
 ### 4.1.3 传递参数
 
+ECMAScript中所有函数的参数都是按值传递的。如果是原始值，就跟原始值变量的复制一样，如果是引用值，就跟引用值的复制一样
+
+```javascript
+function addTen(num) {
+  num += 10;
+  return num;
+}
+
+let count = 20;
+let result = addTen(count);
+console.log(count); // 20
+console.log(result); // 30
+```
+
+```javascript
+function setName(obj) {
+  obj.name = "Nicholas";
+}
+
+let person = new Object();
+setName(person);
+console.log(person.name); // "Nicholas"
+```
+
+```javascript
+function setName(obj) {
+  obj.name = "Nicholas";
+  obj = new Object();
+  obj.name = "Greg";
+}
+
+let person = new Object();
+setName(person);
+console.log(person.name); // "Nicholas"
+```
+
+> ECMAScript中函数的参数就是局部变量
+
+### 4.1.4 确定类型
+
+ECMAScript提供了instanceof操作符，可以知道一个值是什么类型的对象，语法如下
+
+```javascript
+result = varable instanceof constructor
+```
+
+如果变量是给定引用类型的实例，用instanceof操作符返回true
+
+```javascript
+console.log(person instanceof Object); 
+console.log(colors instanceof Array);
+console.log(pattern instanceof RegExp);
+```
+
+用instanceof检测原始值，始终返回false，因为原始值不是对象
+
+## 4.2 执行上下文与作用域
+
+变量或函数的上下文决定了它们可以访问哪些数据，以及它们的行为。每个上下文都有一个关联的变量对象，这个上下文中定义的所有变量和函数都在于这个对象上。
+
+全局上下文是最外层的上下文。在浏览器中，全局上下文是window对象，通过var定义的全局变量和函数会成为window对象的属性和方法，使用let和const的顶级声明不会定义在全局上下文中
+
+代码执行时，标识符解析通过沿作用域链逐级搜索标识符名称完成，搜索过程始终从作用域链的最前端开始，逐级往后
+
+```javascript
+var color = "blue";
+
+function changeColor() {
+  if (color === "blue") {
+    color = "red";
+  } else {
+    color = "blue";
+  }
+}
+
+changeColor();
+```
+
+函数changeColor\(\)的作用域链包含两个对象：自己的变量对象和全局上下文的变量对象，函数内部之所以能够访问变量color就是因为可以在作用域链中找到它
+
+局部作用域中定义的变量可用于在局部上下文中替换全局变量
+
+```javascript
+var color = "blue";
+
+function changeColor() {
+  let anotherColor = "red";
+  
+  function swapColors() {
+    let tempColor = anotherColor;
+    anotherColor = color;
+    color = tempColor;
+    
+    // 这里可以访问color、anotherColor和tempColor
+  }
+    
+  // 这里可以访问color和anotherColor，访问不到tempColor
+  swapColors();
+}
+
+// 这里只能访问color
+changeColor();  
+```
+
+内部上下文可以通过作用域链访问外部上下文中的一切，但外部上下文无法访问内部上下文中的任何东西
+
+> 函数参数被认为是当前上下文中的变量，因此也跟上下文中的其他变量遵循相同的访问规则
+
+### 4.2.1 作用域链增强
+
+某些语句会在作用域链前端临时添加一个上下文，在代码执行后会被删除，通常会在以下两种情况下出现：
+
+* try/catch语句的catch块
+* with语句
+
+对with语句来说，会向作用域链前端添加指定的对象；catch语句则会创建一个新的变量对象，它会包含要抛出的错误对象的声明
+
+```javascript
+function buildUrl() {
+  let qs = "?debug=true";
+  
+  with(location) {
+    let url = href + qs;
+  }
+  
+  return url;
+}
+```
+
+with语句将location对象作为上下文，location会被添加到作用域链前端。with语句中的代码引用变量href时，实际上引用的事location.href，引用qs时，引用的则是定义在buildUrl\(\)中的那个变量，它定义在函数上下文的变量对象上，with语句中使用var声明的变量url会成为函数上下文的一部分，但let声明的url因为被限制在会级作用域，所以在with块之外没有定义
+
+### 4.2.2 变量声明
+
+#### 4.2.2.1 使用var的函数作用域声明
+
+var声明的变量会被自动添加到最接近的上下文，函数中为函数的局部上下文，with语句中为函数上下文，若变量未经声明就被初始化就会被添加到全局上下文
+
+```javascript
+function add(num1, num2) {
+  var sum = num1 + num2;
+  return sum;
+}
+
+let result = add(10, 20); // 30
+console.log(sum); // 报错：sum在这里不是有效变量
+```
+
+如果省略上面例子中的var，sum在add\(\)被调用后就可以访问
+
+```javascript
+function add(num1, num2) {
+  sum = num1 + num2;
+  return sum;
+}
+
+let result = add(10, 20); // 30
+console.log(sum); // 30
+```
+
+> 未经声明而初始化变量是JavaScript编程中一个非常常见的错误，会导致很多问题。为此，读者在初始化变量之前一定要先声明变量。在严格模式下，未经声明就初始化变量会报错
+
 
 
