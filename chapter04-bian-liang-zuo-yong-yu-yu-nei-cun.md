@@ -249,3 +249,109 @@ var a;
 
 let非常适合在循环中声明迭代变量，使用var声明的迭代变量会泄漏到循环外部
 
+#### 4.2.2.3 使用const的常量声明
+
+使用const声明的变量必须同时初始化为某个值，一经声明，在其声明周期的任何时候都不能再重新赋予新值
+
+```javascript
+const a; // SyntaxError: 常量声明时没有初始化
+
+const b = 3;
+console.log(b); // 3
+b = 4; // TypeError: 给常量赋值
+```
+
+其他方面与let声明是一样的
+
+const声明只应用到顶级原语或者对象，即赋值为对象的const变量不能再被重新赋值为其他引用值，但对象的键不受限制
+
+```javascript
+const o1 = {};
+o1 = {}; // TypeError: 给常量赋值
+
+const o2 = {};
+o2.name = 'Jake';
+console.log(o2.name); // 'Jake'
+```
+
+使用Object.freeze\(\)可以让整个对象都不能修改，虽然这样给属性赋值时不会报错，但是静默失败
+
+```javascript
+const o3 = Object.freeze({});
+o3.name = 'Jake';
+console.log(o3.name); // undefined
+```
+
+> 如果开发流程不会因此受很大影响，应该尽可能多使用const声明
+
+#### 4.2.2.4 标识符查找
+
+```javascript
+var color = 'blue';
+
+function getColor() {
+  return color;
+}
+
+console.log(getColor()); // 'blue'
+```
+
+函数调用时会引用变量color，此时会进行两部搜索。第一步，搜索getColor\(\)的变量对象，查找名为color的标识符。结果没找到，于是继续搜索下一个变量对象（来自全局上下文），就找到了名为color的标识符。
+
+对这个搜索过程而言，引用局部变量会让搜索自动停止，也就是说，如果局部上下文中有一个同名的标识符，那就不能在该上下文中的同名标识符
+
+```javascript
+var color = 'blue';
+
+function getColor() {
+  let color = 'red';
+  return color;
+}
+
+console.log(getColor()); // 'red'
+```
+
+## 4.3 垃圾回收
+
+JavaScript通过自动内存管理实现内存分配和闲置资源回收。基本思路：确定哪个变量不会再使用，就释放它占用的内存。这个过程是周期性的，即垃圾回收每隔一定时间就会自动运行
+
+浏览器的发展史上用过两种主要的标记策略：标记清理和引用计数
+
+### 4.3.1 标记清理
+
+垃圾回收程序运行的时候，会标记内存中存储的所有变量，然后会将所有再上下文中的变量，以及被在上下文中的变量的标记去掉，在此之后再被加上标记的变量就是待删除的了，因为任何在上下文中的变量都访问不到它们了
+
+### 4.3.2 引用计数
+
+该策略不常用。其思路是对每个值都记录它被引用的次数，声明变量并给它赋一个引用值时，这个值的引用数为1，如果同一个值又被赋给另一个变量，那么引用数加1，如果保存对该值引用的变量被其他值给覆盖了，那么引用数减1，引用数为0时，就说明没办法再访问到这个值了
+
+### 4.3.3 性能
+
+### 4.3.4 内存管理
+
+将内存占用量保持在一个较小的值可以让页面性能更好。优化内存占用的最佳手段就是保证在执行代码时只保存必要的数据。如果数据不再必要，就把它设置为null，这也叫解除引用。
+
+```javascript
+function createPerson(name) {
+  let localPerson = new Object();
+  localPerson.name = name;
+  return localPerson;
+}
+
+let globalPerson = createPerson("Nicholas");
+
+// 解除globalPerson对值的引用
+
+globalPerson = null;
+```
+
+#### 4.3.4.1 通过const和let声明提升性能
+
+相比于使用var，使用这两个新关键字可能会更早地让垃圾回收程序介入
+
+#### 4.3.4.2 隐藏类和删除操作
+
+#### 4.3.4.3 内存泄露
+
+#### 4.3.4.4 静态分配与对象池
+
