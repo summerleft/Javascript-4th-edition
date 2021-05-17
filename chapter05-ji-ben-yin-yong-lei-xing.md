@@ -143,5 +143,147 @@ let pattern1 = /\[bc\]at/i;
 let pattern2 = /\.at/gi;
 ```
 
+正则表达式也可以使用RegExp构造函数来创建，接收两个参数：模式字符串和（可选的）标记字符串
+
+```javascript
+let pattern1 = /[bc]at/i;
+
+let pattern2 = new RegExp("[bc]at","i"];
+```
+
+### 5.2.1 RegExp实例属性
+
+每个RegExp实例都有下列属性：
+
+* global：布尔值，表示是否设置了g标记
+* ignoreCase：g标记
+* unicode：u标记
+* sticky：y标记
+* lastIndex：整数，表示在源字符串中下一次搜索的开始位置，始终从0开始
+* multiline：m标记
+* dotAll：s标记
+* source：正则表达式的字面量字符串（不是传给构造函数的模式字符串），没有开头和结尾的斜杠
+* flags：正则表达式的标记字符串，始终以字面量而非传入构造函数的字符串模式形式返回（没有前后斜杠）
+
+```javascript
+let pattern1 = /\[bc\]at\i;
+
+console.log(pattern1.global); // false
+console.log(pattern1.ignoreCase); //true
+console.log(pattern1.multiline); // false
+console.log(pattern1.lastIndex); // 0
+console.log(pattern1.source);  // "\[bc/]at"
+console.log(pattern1.flags); // "i"
+```
+
+无论是通过字面量创建还是通过RegExp构造函数创建，他们的属性都相同
+
+### 5.2.2 RegExp实例方法
+
+exec\(\)，用于配合捕获组使用，接收一个参数：要应用模式的字符串。若找到匹配项，返回包含第一个匹配信息的数组，没找到则返回null。返回的数组是Array的实例，包含两个额外的属性：index和input，index是字符串中匹配模式的起始位置，input是要查找的字符串。如果模式中没有捕获组，则数组只含有一个元素
+
+```javascript
+let text = "mom and dad and baby";
+let pattern = /mom( and dad( and baby)?)?/gi;
+
+let matches = pattern.exec(text);
+console.log(matches.index); // 0
+console.log(matches.input); // "mom and dad and baby"
+console.log(matches[0]); // "mom and dad and baby"
+console.log(matches[1]); // " and dad and baby"
+console.log(matches[2]); // " and baby"
+```
+
+如果设置了全局标记，每次调用exec\(\)方法会返回一个匹配的信息，如果没有设置，则无论对同一个字符串调用多少次exec\(\)，也只会返回第一个匹配的信息
+
+```javascript
+let text = "cat, bat, sat, fat";
+let pattern = /.at/;
+
+let matches = pattern.exec(text);
+console.log(matches.index); // 0
+console.log(matches[0]); // cat
+console.log(pattern.lastIndex); // 0
+
+matches = pattern.exec(text);
+console.log(matches.index); // 0
+console.log(matches[0]); // cat
+console.log(pattern.lastIndex); // 0
+```
+
+lastIndex在非全局模式下始终不变。如果在模式上设置了g标记，则每次调用exec\(\)都会在字符串中向前搜索下一个匹配项
+
+```javascript
+let text = "cat, bat, sat, fat";
+let pattern = /.at/g;
+let matches = pattern.exec(text);
+console.log(matches.index); // 0
+console.log(matches[0]); // cat
+console.log(pattern.lastIndex); // 3
+
+matches = pattern.exec(text);
+console.log(matches.index); // 5
+console.log(matches[0]); // bat
+console.log(pattern.lastIndex); // 8
+
+matches = pattern.exec(text);
+console.log(matches.index); // 10
+console.log(matches[0]); // sat
+console.log(pattern.lastIndex); // 13
+```
+
+全局匹配模式下，每次调用exec\(\)都会更新lastIndex值，以反映上次匹配的最后一个字符的索引
+
+如果设置了黏附标记y，每次调用exec\(\)就只会在lastIndex的位置上寻找匹配项，且黏附标记覆盖全局标记
+
+```javascript
+let text = "cat, bat, sat, fat";
+let pattern = /.at/y;
+
+let matches = pattern.exec(text);
+console.log(matches.index); // 0
+console.log(matches[0]); // cat
+console.log(pattern.lastIndex); // 3
+
+matches = pattern.exec(text);
+console.log(matches); // null;
+console.log(patterns.lastIndex); // 0
+
+pattern.lastIndex = 5;
+matches = pattern.exec(text);
+console.log(matches.index); // 5
+console.log(matches[0]); // bat
+console.log(pattern.lastIndex); // 8
+```
+
+另一个方法test\(\)，接收一个字符串参数参数。如果输入的文本与模式匹配，则返回true，否则返回false
+
+```javascript
+let text = "000-00-0000";
+let pattern = /\d{3}-\d{2}-\d{4}/;
+
+if (pattern.test(text)){
+  console.log("The pattern was matched.");
+}
+```
+
+无论正则表达式如何创建，toLocaleString\(\)和toString\(\)都返回正则表达式的字面量显示
+
+```javascript
+let pattern = new RegExp("\\[bc\\]at", "gi");
+console.log(pattern.toString());  // /\[bc/]at/gi
+console.log(pattern.toLocaleString()); // /\[bc/]at/gi
+```
+
+### 5.2.3 RegExp构造函数属性
+
+| 全名 | 简写 | 说明 |
+| :--- | :--- | :--- |
+| input | $\_ | 最后搜索的字符串（非标准特性） |
+| lastMatch | $& | 最后匹配的文本 |
+| lastParen | $+ | 最后匹配的捕获组（非标准特性） |
+| leftContext | $\` | input字符串中出现在lastMatch前面的文本 |
+| rightContext  | $' | input字符串中出现在lastMatch后面的文本 |
+
 
 
