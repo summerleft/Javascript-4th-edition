@@ -285,5 +285,90 @@ console.log(pattern.toLocaleString()); // /\[bc/]at/gi
 | leftContext | $\` | input字符串中出现在lastMatch前面的文本 |
 | rightContext  | $' | input字符串中出现在lastMatch后面的文本 |
 
+## 5.3 原始包装类型
 
+3种特殊引用类型：Boolean, Number, String
+
+引用类型与原始值包装类型的区别在于对象的生命周期，通过new实例化引用类型得到的实例在离开作用域时被销毁，而自动创建的原始值包装对象只存在于访问它的那行代码执行期间
+
+```javascript
+let s1 = "some text";
+s1.color = "red";
+console.log(s1.color); // undefined
+```
+
+在原始值包装类型的实例上调用typeof会返回“object“，所有原始值包装对象会转换为布尔值true
+
+Object构造函数能够根据传入值的类型返回相应原始值包装类型的实例
+
+```javascript
+let obj = new Object("some text");
+console.log(obj instanceof String); // true
+```
+
+使用new调用原始值包装类型的构造函数与调用同名的转型函数不一样
+
+```javascript
+let value = "25";
+let number = Number(value); // 转型函数
+console.log(typeof number); // "number"
+let obj = new Number(value); // 构造函数
+console.log(typeof obj); // "object"
+```
+
+### 5.3.1 Boolean
+
+Boolean实例会充血valueOf\(\)方法，返回原始值true或false，toString\(\)方法返回字符串“true“或“false“
+
+> 强烈建议永远不要使用Boolean对象
+
+### 5.3.2 Number
+
+Number类型重写了valueOf\(\), toLocaleString\(\), toString\(\)，valueOf\(\)返回Number对象表示的原始数值，其他两个返回数字字符串，toString\(\)可选接收表示基数的参数
+
+```javascript
+let num = 10;
+console.log(num.toString()); // "10"
+console.log(num.toString(2)); // "1010"
+console.log(num.toString(8)); // "12"
+console.log(num.toString(10)); // "10"
+console.log(num.toString(16)); // "a"
+```
+
+toFixed\(\)返回包含指定小数点位数的数值字符串
+
+```javascript
+let num = 10;
+console.log(num.toFixed(2)); // "10.00"
+
+let num = 10.005;
+console.log(num.toFixed(2)); // "10.01"
+```
+
+toExponential\(\) 返回以科学记数法表示的数值字符串，接收参数表示结果中小数的位数
+
+```javascript
+let num = 10;
+console.log(num.toExponential(1)); // "1.0e+1"
+```
+
+toPrecision\(\)返回最合理的输出结果，接收一个参数，表示结果中数字的总位数
+
+```javascript
+let num = 99;
+console.log(num.toPrecision(1)); // "1e+2"
+console.log(num.toPrecision(2)); // "99"
+console.log(num.toPrecision(3)); // "99.0"
+```
+
+不建议直接实例化Number对象，在处理原始数值和引用数值时，typeof和instanceof会返回不同结果
+
+```javascript
+let numberObject = new Number(10);
+let numberValue = 10;
+console.log(typeof numberObject); // "object"
+console.log(typeof numberValue);  // "number"
+console.log(numberObject instanceof Number); // true
+console.log(numberValue instanceof Number); // false
+```
 
