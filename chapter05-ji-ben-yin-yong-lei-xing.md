@@ -372,3 +372,296 @@ console.log(numberObject instanceof Number); // true
 console.log(numberValue instanceof Number); // false
 ```
 
+isIntjeger\(\)方法与安全整数，用于辨别一个数值是否为整数
+
+```javascript
+console.log(Number.isInteger(1)); // true
+console.log(Number.isInteger(1.00)); // true
+console.log(Number.isInteger(1.01)); // false
+```
+
+isSafeInteger\(\)方法
+
+```javascript
+console.log(Number.isSafeInteger(-1 * (2 ** 53))); // false
+console.log(Number.isSafeInteger(-1 * (2 ** 53) + 1);; // true
+
+console.log(Number.isSafeInteger(1 * (2 ** 53))); // false
+console.log(Number.isSafeInteger((2 ** 53) - 1);; // true
+```
+
+### 5.3.3 String
+
+String对象的方法可以在所有字符串原始值上调用，3个继承的方法valueOf\(\)，toLocaleString\(\)，toString\(\)都返回对象的原始字符串值
+
+每个String对象都有属性length，表示字符串字符数量，双字节字符也按单字符计算
+
+#### 5.3.3.1 JavaScript字符串
+
+JavaScript字符串由16位码元组成，length属性表示字符串包含多少16位码元
+
+```javascript
+let message = "abcde";
+console.log(message.length); // 5
+```
+
+charAt\(\)方法返回给定索引位置的字符
+
+```javascript
+let message = "abcde";
+console.log(message.charAt(2)); // "c"
+```
+
+charCodeAt\(\)方法查看指定码元的字符编码
+
+```javascript
+let message = "abcde";
+console.log(message.charCodeAt(2)); // 99
+console.log(99 === 0x63); // true
+```
+
+fromCharCode\(\)方法根据给定的UTF-16码元创建字符串中的字符
+
+```javascript
+console.log(String.fromCharCode(0x61, 0x61, 0x63, 0x64, 0x65)); //"abcde"
+console.log(String.fromCharCode(97, 98, 99, 100, 101)); //"abcde"
+```
+
+#### 5.3.3.2 normalize\(\)方法
+
+#### 5.3.3.3 字符串操作方法
+
+concat\(\) 拼接字符串
+
+```javascript
+let stringValue = "hello ";
+let result = stringValue.concat("world");
+
+console.log(result); // "hello world"
+console.log(stringValue); // "hello"
+```
+
+```javascript
+let stringValue = "hello ";
+let result = stringValue.concat("world", "!");
+
+console.log(result); // "hello world!"
+```
+
+加号操作符即可拼接字符串
+
+提取子字符串的方法：slice\(\)，substr\(\)，substring\(\)。第一个参数表示子字符串开始的位置，第二个参数表示结束位置。slice\(\)和substring\(\)第二个参数是提取结束的位置，substr\(\)第二个参数表示返回的子字符串的字符数量，它们均不改变原来的字符串
+
+```javascript
+let stringValue = "hello world";
+console.log(stringValue.slice(3)); // "lo world"
+console.log(stringValue.substring(3)); // "lo world"
+console.log(stringValue.substr(3)); // "lo world" 
+console.log(stringValue.slice(3, 7)); // "lo w"
+console.log(stringValue.substring(3, 7)); // "lo w"
+console.log(stringValue.substr(3, 7)); //"lo worl"
+```
+
+参数为负数时，slice\(\)将负值参数当成字符串长度加上负参数值，substr\(\)将第一个负参数值当成字符串长度加上该值，第二个负参数值转换为0，substring\(\)将所有负参数值转换为0
+
+```javascript
+let stringValue = "hello world"; 
+console.log(stringValue.slice(-3)); // "rld"
+console.log(stringValue.substring(-3)); // "hello world"
+console.log(stringValue.substr(03)); // "rld"
+console.log(stringValue.slice(3, -4)); // "lo w"
+console.log(stringValue.substring(3, -4)); // "hel"
+console.log(stringValue.substr(3, -4)); // ""(empty)
+```
+
+#### 5.3.3.4 字符串位置方法
+
+indexOf\(\)和lastIndexOf\(\)从字符串中搜索传入的字符串，并返回位置（未找到则返回-1），indexOf\(\)从字符串开头开始查找，lastIndexOf\(\)从字符串末尾开始查找
+
+```javascript
+let stringValue = "hello world";
+console.log(stringValue.indexOf("o"); // 4
+console.log(stringValue.lastIndexOf("o"); // 7
+```
+
+可选第二个参数，表示开始搜索的位置
+
+```javascript
+let stringValue = "hello world";
+console.log(stringValue.indexOf("o", 6)); // 7
+console.log(stringValue.lastIndexOf("o", 6)); // 4
+```
+
+#### 5.3.3.5 字符串包含方法
+
+startsWith\(\)，endsWith\(\)，includes\(\)从字符串中搜索传入的字符串，返回一个表示是否包含的不二之，startsWith\(\)检查开始于索引0的匹配项，endsWith\(\)检查开始位于索引\(string.length-substring.length\)的匹配项，includes\(\)检查整个字符串
+
+```javascript
+let message = "foobarbaz";
+
+console.log(message.startsWith("foo")); // true
+console.log(message.startsWith("bar")); // false
+
+console.log(message.endsWith("baz")); // true
+console.log(message.endsWith("bar")); // false
+
+console.log(message.includes("bar")); // true
+console.log(message.includes("qux")); // false
+```
+
+startsWIth\(\)和includes\(\)方法接收可选第二参数，表示开始搜索位置
+
+```javascript
+let message = "foobarbaz";
+
+console.log(message.startsWith("foo")); // true
+console.log(message.startsWith("foo", 1)); // false
+
+console.log(message.includes("bar")); // true
+console.log(message.includes("bar", 4)); // false
+
+```
+
+endsWith\(\)接收可选第二参数，表示当作字符串末尾的位置
+
+```javascript
+let message = "foobarbaz";
+
+console.log(message.endsWith("bar")); // false
+console.log(message.endsWith("bar", 6)); // true
+```
+
+#### 5.3.3.6 trim\(\)方法
+
+创建字符串的一个副本，删除前后所有空格
+
+```javascript
+let stringValue = "  hello world ";
+let trimmedStringValue = stringValue.trim();
+console.log(stringValue); // "  hello world "
+console.log(trimmedStringValue); // "hello world"
+```
+
+#### 5.3.3.7 repeat\(\)方法
+
+接收一个整数参数，表示将字符串复制多少次，返回拼接所有副本后的结果
+
+```javascript
+let stringValue = "na ";
+console.log(stringValue.repeat(16) + "batman");
+// na na na na na na na na na na na na na na na na batman
+```
+
+#### 5.3.3.8 padStart\(\)和padEnd\(\)
+
+复制字符串，若小于指定长度，则在相应一边填充字符，直到满足条件，第一个参数是长度，第二个参数时可选的填充字符串，默认为空格
+
+```javascript
+let stringValue = "foo";
+
+console.log(stringValue.padStart(6)); // "   foo"
+console.log(stringValue.padStart(9, ".")); // "......foo"
+
+console.log(stringValue.padEnd(6)); // "foo . "
+console.log(stringValue.padEnd(9, ".")); // "foo......"
+```
+
+第二个参数可以是字符串
+
+```javascript
+let stringVlue = "foo";
+
+console.log(stringValue.padStart(8, "bar")); // "barbafoo"
+console.log(stringValue.padStart(2)); // "foo"
+
+console.log(stringValue.padEnd(8, "bar")); // "foobarba"
+console.log(stringValue.padEnd(2)); // "foo"
+```
+
+#### 5.3.3.9 字符串迭代与解构
+
+```javascript
+let message = "abc";
+let stringIterator = message[Symbol.iterator]();
+
+conlole.log(stringIterator.next()); // {value: "a", done: false}
+conlole.log(stringIterator.next()); // {value: "b", done: false}
+conlole.log(stringIterator.next()); // {value: "c", done: false}
+conlole.log(stringIterator.next()); // {value: "undefined", done: true}
+
+for (const c of "abcde") {
+  console.log(c);
+}
+
+// a
+// b
+// c
+// d
+// e
+```
+
+字符串可以通过解构操作解构
+
+```javascript
+let message = "abcde";
+console.log([...message]); // ["a", "b", "c", "d", "e"]
+```
+
+#### 5.3.3.10 字符串大小写转换
+
+* toLowerCase\(\)
+* toLocaleLowerCase\(\)
+* toUpperCase\(\)
+* toLocaleUpperCase\(\)
+
+两个带Locale的方法用于某些特殊地区语言
+
+#### 5.3.3.11 字符串模式匹配方法
+
+match\(\)本质上和RegExp的exec\(\)相同，接收一个参数，可以是正则表达式字符串或RegExp对象
+
+```javascript
+let text = "cat, bat, sat, fat";
+let pattern = /.at/;
+
+// 等价于pattern.exec(text)
+let matches = text.match(pattern);
+console.log(matches.index); // 0
+console.log(matches[0]); // "cat"
+console.log(pattern.lastIndex); // 0
+```
+
+search\(\)，唯一参数与match\(\)一样，方法返回模式第一个匹配的位置索引，没找到则返回-1，从头至尾匹配
+
+```javascript
+let text = "cat, bat, sat, fat";
+let pos = text.search(/at/);
+console.log(pos); // 1
+```
+
+replace\(\)，接收两个参数，第一个是RegExp对象或字符串，第二个参数是字符串或者函数。若第一个参数是字符串，则只替换第一个子字符串，若替换所有用子字符串，则第一个参数必须是正则表达式且带全局标记
+
+```javascript
+let text = "cat, bat, sat, fat";
+let result = text.replace("at", "ond");
+console.log(result); // "cond, bat, sat, fat"
+
+result = text.replace(/at/g, "ond");
+console.log(result); // "cond, bond, sond, fond"
+```
+
+#### 5.3.3.12 localeCompare\(\)
+
+比较两个字符串，返回值如下：
+
+* 按照字母表顺序，字符串排在字符串参数前面，则返回负值（通常为-1）
+* 字符串与字符串参数相等，返回0
+* 按照字母表顺序，字符串排在字符串参数后面，则返回正值
+
+```javascript
+let stringValue = "yellow";
+console.log(stringValue.localeCompare("brick")); // 1
+console.log(stringValue.localeCompare("yellow")); // 0
+console.log(stringValue.localeCompare("zoo")); // -1
+```
+
