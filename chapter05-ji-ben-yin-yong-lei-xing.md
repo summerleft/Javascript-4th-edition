@@ -665,3 +665,105 @@ console.log(stringValue.localeCompare("yellow")); // 0
 console.log(stringValue.localeCompare("zoo")); // -1
 ```
 
+## 5.4 单例内置对象
+
+### 5.4.1 Global
+
+在全局作用域中定义的变量和函数都会变成Global对象的属性
+
+#### 5.4.1.1 URL编码方法
+
+encodeURI\(\)对整个URI（统一资源标识符）进行编码，encodeURIComponent\(\)用于编码URI中单独的组件
+
+```javascript
+let uri = "http://www.wrox.com/illegal value.js#start";
+
+// "http://www.wrox.com/illegal%20value.js#start"
+console.log(encodeURI(uri));
+
+// "http%3A%2F%2Fwww.wrox.com%2Fillegal%20value.js%23start"
+console.log(encodeURIComponent(uri));
+```
+
+> 一般来说，encodeURIComponent\(\)比encodeURI\(\)频率更高，因为编码查询字符串参数比编码基准URI的次数更多
+
+相对应的是decodeURI\(\)和decodeURICompnent\(\)
+
+#### 5.4.1.2 eval\(\)方法
+
+​是一个完整的ECMAScript解释器，它接收一个参数，即一个要执行的ECMAScript字符串
+
+```javascript
+eval("console.log('hi')");
+// 等价于
+console.log("hi");
+```
+
+#### 5.4.1.3 Global对象属性
+
+#### 5.4.1.4 window对象
+
+浏览器将window对象实现为Global对象的代理，即所有全局作用域中声明的变量和函数都变成了window的属性
+
+```javascript
+var color = "red";
+
+function sayColor() {
+  console.log(window.color);
+}
+
+window.sayColor(); // "red"
+```
+
+### 5.4.2 Math
+
+#### 5.4.2.1 Math对象属性
+
+用于保存数学中的一些特殊值
+
+#### 5.4.2.2 min\(\)和max\(\)方法
+
+用于确定一组数值中的最小值和最大值
+
+```javascript
+let max = Math.max(3, 54, 32, 16);
+console.log(max); // 54
+
+let min = Math.min(3, 54, 32, 16);
+console.log(min); // 3
+
+let values = [1, 2, 3, 4, 5, 6, 7, 8];
+let max = Math.max(...val);
+```
+
+#### 5.4.2.3 舍入方法
+
+* Math.ceil\(\) 向上舍入最近整数
+* Math.floor\(\) 向下舍入最近整数
+* Math.round\(\) 执行四舍五入
+* Math.fround\(\) 返回数值最接近的单精度（32位）浮点值表示
+
+```javascript
+console.log(Math.ceil(25.9)); // 26
+console.log(Math.ceil(25.5)); // 26
+console.log(Math.ceil(25.1)); // 26
+
+console.log(Math.round(25.9)); // 26
+console.log(Math.round(25.5)); // 26
+console.log(Math.round(25.1)); // 25
+
+console.log(Math.fround(0.4)); // 0.4000000059604645
+console.log(Math.fround(0.5)); // 0.5
+console.log(Math.fround(25.9)); // 25.899999618530273
+
+console.log(Math.floor(25.9)); // 25
+console.log(Math.floor(25.5)); // 25
+console.log(Math.floor(25.1)); // 25
+```
+
+#### 5.4.2.4 random\(\)方法
+
+Math.random\(\)返回0-1之间的随机数，包含0不包含1
+
+#### 5.4.2.5 其他方法
+
