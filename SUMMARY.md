@@ -6,4 +6,5 @@
 * [Chapter03 语言基础](chapter03-yu-yan-ji-chu.md)
 * [Chapter04 变量、作用域与内存](chapter04-bian-liang-zuo-yong-yu-yu-nei-cun.md)
 * [Chapter05 基本引用类型](chapter05-ji-ben-yin-yong-lei-xing.md)
+* [Chapter06 集合引用类型](chapter06-ji-he-yin-yong-lei-xing.md)
 
